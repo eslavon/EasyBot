@@ -36,6 +36,5 @@ class EasybotException extends Exception
         fwrite($file, $error);
         fclose($file);
         return $error;
-        // parent::__toString(); 
     }
 }
