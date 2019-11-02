@@ -3,15 +3,6 @@
 require_once "../vendor/autoload.php";
 
 use Easybot\Core\VkGroupMethod;
-
-$token = "510e1de5a0ea73d0a07a8a7c4c3798312823c418438495602b4c6c4730f1c1ba07c78bec365f9606bef2a";
-$version = "5.103";
-$group_id = 177592645;
-$url = "http://eslavon.site/easybot/example.php";
-$title = "EasyBot";
-$secret_key = "secret";
-
-
 $vk_group = new VkGroupMethod($token,$version);
 
 // Добавить адрес Callback
