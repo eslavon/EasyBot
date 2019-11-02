@@ -50,3 +50,4 @@ class VkRequest extends EasybotException
 		return $data;
 	}
 }
+
