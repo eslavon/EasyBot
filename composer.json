@@ -1,0 +1,14 @@
+{
+  "name": "eslavon/easybot",
+  "description" : "Библиотека для разработки чат ботов Вконтакте",
+  "license": "MIT License",
+  "authors": [
+    {
+      "name": "Victor Vinogradov",
+      "email": "victor@eslavon.ru"
+    }
+  ],
+  "autoload": {
+    "psr-4": {"Easybot\\": "src/"}
+  }
+}
