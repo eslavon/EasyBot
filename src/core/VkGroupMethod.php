@@ -123,14 +123,14 @@ class VkGroupMethod extends VkRequest
      *
      * @return array
      */   
-    public function getCallbackServer($group_id,$server_ids = NULL)
+    public function getCallbackServer($group_id,$server_ids = null)
     {
         $params = array(
             "group_id" => $group_id,
             "access_token" => $this->token,
             "v" => $this->version
             );  
-        if ($server_ids !== NULL) {
+        if ($server_ids !== null) {
             $params["server_ids"] = $server_ids;
         }    
         $method = "groups.getCallbackServers";
