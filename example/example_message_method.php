@@ -2,12 +2,7 @@
 
 require_once "../vendor/autoload.php";
 
-use Easybot\Core\VkMessageMethod;
-
-$user_id = 251510315;
-$peer_id = 251510315;
-$token = "f3ffe56dedb4ed341b2169b00a33f0759c6e8b0323bae19295ff3fa6216bcde9c296aa908af1208fd93ce";
-$version = "5.103";
+use Eslavon\Easybot\VkMessageMethod;
 
 $vk_message = new VkMessageMethod($token,$version);
 

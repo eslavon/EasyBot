@@ -1,14 +1,25 @@
 {
   "name": "eslavon/easybot",
-  "description" : "Библиотека для разработки чат ботов Вконтакте",
-  "license": "MIT License",
+  "type": "library",
+  "description" : "Library for easy create chat bots VK com",
+  "keywords": ["bot","vk.com","vk"],
+  "homepage": "https://github.com/eslavon/EasyBot",
+  "license": "MIT",
+  "minimum-stability": "stable",
   "authors": [
     {
       "name": "Victor Vinogradov",
-      "email": "victor@eslavon.ru"
+      "email": "victor@eslavon.ru",
+      "homepage": "http://seld.be",
+      "role": "https://vk.com/winogradow.wiktor"
     }
   ],
+  "require": {
+    "php": ">=7.3",
+    "ext-curl": "*",
+    "ext-json": "*"                                                                                                     
+    },
   "autoload": {
-    "psr-4": {"Easybot\\": "src/"}
+    "psr-4": {"Eslavon\\Easybot\\": "src/"}
   }
 }

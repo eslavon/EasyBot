@@ -8,7 +8,7 @@
  * @license   https://opensource.org/licenses/MIT MIT License
  */
 
-namespace Easybot\Core;
+namespace Eslavon\Easybot;
 
 /**
  * VkRequest - отправка запросов к VK_API

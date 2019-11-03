@@ -8,7 +8,7 @@
  * @license   https://opensource.org/licenses/MIT MIT License
  */
 
-namespace Easybot\Core;
+namespace Eslavon\Easybot;
 use Exception;
 use Throwable;
 

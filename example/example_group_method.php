@@ -2,7 +2,7 @@
 
 require_once "../vendor/autoload.php";
 
-use Easybot\Core\VkGroupMethod;
+use Eslavon\Easybot\VkGroupMethod;
 $vk_group = new VkGroupMethod($token,$version);
 
 // Добавить адрес Callback
