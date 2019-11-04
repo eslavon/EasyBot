@@ -30,6 +30,27 @@ class VkMessageMethod extends VkRequest
     private $version;
 
    /**
+     * Вложения для отправки сообщения
+     *
+     * @var string
+     */ 
+    private $attachment = null;
+
+   /**
+     * Местоположение
+     *
+     * @var array
+     */ 
+    private $location = null;
+
+   /**
+     * Настройки
+     *
+     * @var array
+     */ 
+    private $setting = null;
+
+   /**
      * Конструктор класса
      *
      * @param string $token - Ключ доступа сообщества
@@ -121,6 +142,26 @@ class VkMessageMethod extends VkRequest
             $params[$key] = $value;
         }
         $params["random_id"] = $this->random();
+        $attachment = $this->getAttachment();
+        if ($attachment !== null) {
+            $params["attachment"] = $attachment;
+            $this->attachment = null;
+        }
+        $location = $this->getLocation();
+        if ($location !== null) {
+            $params["lat"] = $location["lat"];
+            $params["long"] = $location["long"];
+            $this->location = null;
+            $this->setAttachment();
+        }
+
+        if ($this->setting !== null) {
+            foreach ($this->setting as $key => $value) {
+                $params[$key] = $value;
+            }
+            $this->setting = null;
+        }
+
         $method = "messages.send";
         $result = $this->request($method,$params);
         return $result;
@@ -135,48 +176,16 @@ class VkMessageMethod extends VkRequest
      *
      * @return array
      */
-    public function sendMessage($peer_id,$message,$setting = null)
+    public function sendMessage($peer_id,$message)
     {
         $params = array(
             "peer_id" => $peer_id,
             "message" => $message
         );
-        if ($setting !== null) {
-            foreach ($setting as $key => $value) {
-                $params[$key] = $value;
-            }
-        }
         $result = $this->messagesSend($params);
         return $result;
     }
 
-    /**
-     * Отправка текстового соообщения c геоточкой
-     *
-     * @param int $peer_id - ID назначения
-     * @param string $message - Текст сообщения
-     * @param float $lat - географическая широта (от -90 до 90).
-     * @param float $long - географическая долгота (от -180 до 180).
-     * @param array $setting - Параметры (Сниппет ссылки,Уведомление,Интент)
-     *
-     * @return array
-     */
-    public function sendMessageGeo($peer_id,$message,$lat,$long,$setting = null)
-    {
-        $params = array(
-            "peer_id" => $peer_id,
-            "message" => $message,
-            "lat" => $lat,
-            "long" => $long
-        );
-        if ($setting !== null) {
-            foreach ($setting as $key => $value) {
-                $params[$key] = $value;
-            }
-        }
-        $result = $this->messagesSend($params);
-        return $result;
-    }
 
     /**
      * Отправка сообщения с клавиатурой
@@ -325,4 +334,79 @@ class VkMessageMethod extends VkRequest
         $file = $doc_array["file"];
         return $this->saveDocServer($file);
     }
+
+    /** 
+    * Добавить вложение 
+    *
+    * @param string $add_attachment
+    */
+    public function addAttachment($add_attachment)
+    {
+
+        $this->attachment = ($this->attachment !== null) ? $this->attachment.",".$add_attachment : $add_attachment;
+    }
+
+    /**
+    * Получить строку вложений
+    *
+    * @return $string
+    */
+    public function getAttachment()
+    {
+        return $this->attachment;
+    }
+
+    /**
+    * Задать строку вложений
+    *
+    * @param string $value
+    */
+    public function setAttachment($value = null)
+    {
+        $this->attachment = $value;
+    }
+
+    /**
+    * Получить георкодинаты
+    *
+    * @return $string
+    */
+    public function getLocation()
+    {
+        return $this->location;
+    }
+
+    /**
+    * Задать строку вложений
+    *
+    * @param string $value
+    */
+    public function setLocation($lat,$long)
+    {
+        $this->location = ["lat"=>$lat,"long" => $long];
+    }
+
+    /**
+    * Задать строку вложений
+    *
+    * @param string $value
+    */
+    public function setSetting($setting = null)
+    {
+        if ($setting !== null) {
+            foreach ($setting as $key => $value) {
+                $this->setting[$key] = $value;
+            }
+        }
+    }
+
+    /**
+    * Получить настройки
+    *
+    * @return $string
+    */
+    public function getSetting()
+    {
+        return $this->setting;
+    }  
 }
