@@ -204,5 +204,125 @@ class VkMessageMethod extends VkRequest
         $result = $this->messagesSend($params);
         return $result;
     }
-}
 
+    /**
+     * Получить адрес для загрузки изображений
+     *
+     * @param int $peer_id - ID назначения
+     *
+     * @return string
+     */
+    public function imageUploadServer($peer_id)
+    {
+        $params = array(
+            "peer_id" => $peer_id,
+            "access_token" => $this->token,
+            "v" => $this->version           
+        );
+        $method = "photos.getMessagesUploadServer";
+        $result = $this->request($method,$params);
+        return $result["response"]["upload_url"];
+    }
+
+    /**
+     * Получить адрес для загрузки документов
+     *
+     * @param int $peer_id - ID назначения
+     *
+     * @return string
+     */
+    public function docUploadServer($peer_id)
+    {
+        $params = array(
+            "type" => "doc",
+            "peer_id" => $peer_id,
+            "access_token" => $this->token,
+            "v" => $this->version             
+        );
+        $method = "docs.getMessagesUploadServer";
+        $result = $this->request($method,$params);
+        return $result["response"]["upload_url"];
+    }
+
+    /**
+     * Сохранить загруженную фотографию
+     *
+     * @param int $peer_id - ID назначения
+     *
+     * @return string
+     */
+    public function savePhotoServer($photo,$server,$hash)
+    {
+        $params = array(
+            "photo" => $photo,
+            "server" => $server,             
+            "hash" => $hash,             
+            "access_token" => $this->token,
+            "v" => $this->version
+        );
+
+        $method = "photos.saveMessagesPhoto";
+        $result = $this->request($method,$params);
+        $id = $result["response"][0]["id"];
+        $owner_id = $result["response"][0]["owner_id"];
+        $access_key = $result["response"][0]["access_key"];
+        $image = "photo".$owner_id."_".$id."_".$access_key;
+        return $image;    
+    }
+
+    /**
+     * Сохранить загруженную документ
+     *
+     * @param string $file - ID документа
+     *
+     * @return string
+     */
+    public function saveDocServer($file)
+    {
+        $params = array(
+            "file" => $file,
+            "access_token" => $this->token,
+            "v" => $this->version
+        );
+        $method = "docs.save";
+        $result = $this->request($method,$params);
+        $id = $result["response"]["doc"]["id"];
+        $owner_id = $result["response"]["doc"]["owner_id"];
+        $doc = "doc".$owner_id."_".$id;
+        return $doc;         
+    }
+
+    /**
+     * Загрузить изображение на сервер и получить индетификатор изображения
+     *
+     * @param int $peer_id - ID назначения
+     * @param string $file - Локальный путь до файла
+     *
+     * @return string
+     */
+    public function uploadImage($peer_id,$file)
+    {
+        $upload_url = $this->imageUploadServer($peer_id);
+        $image_array = $this->upload($peer_id,$file,$upload_url);
+        $server = $image_array["server"];
+        $photo = $image_array["photo"];
+        $hash = $image_array["hash"];
+        return $this->savePhotoServer($photo,$server,$hash);
+    }
+
+    /**
+     * Загрузить документ на сервер и получить индетификатор документы для отправки в сообщении
+     *
+     * @param int $peer_id - ID назначения
+     * @param string $file - Локальный путь до файла
+     *
+     * @return string
+     */
+    public function uploadDoc($peer_id,$file)
+    {
+        $upload_url = $this->docUploadServer($peer_id);
+        $doc_array = $this->upload($peer_id,$file,$upload_url);
+        $file = $doc_array["file"];
+        return $this->saveDocServer($file);
+    }
+}
