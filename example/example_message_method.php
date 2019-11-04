@@ -4,14 +4,16 @@ require_once "../vendor/autoload.php";
 
 use Eslavon\Easybot\VkMessageMethod;
 
-
+$token = "4256d7476ed777252ceb98e04cd5d50e3ec5f65b2e5eb177e0e4a4f615b5bc20a5197400df50149286c6f";
+$version = "5.103";
+$peer_id = 251510315;
 $vk_message = new VkMessageMethod($token,$version);
 
 
 // Отправка простого сообщения
 $message = "Свободу попугаям!";
 $vk_message->sendMessage($peer_id,$message);
-
+/*
 // Отправка сообщения с изображением
 $image = $vk_message->uploadImage($peer_id,"1.jpg"); // Загружаем изображение на сервер Вконатке
 $vk_message->addAttachment($image); // Добавляем вложение к сообщению
@@ -59,9 +61,10 @@ $vk_message->setLocation($lat,$long); // Добавляем карту к соо
 $vk_message->sendMessage($peer_id,$message);
 
 //Установить настройки для сообщения
-$setting = array("dont_parse_links" => 1, "disable_mentions" => 0); //Параметры
+$setting = array("dont_parse_links" => 1, "disable_mentions" => 0,"sticker_id" =>14090); //Параметры
 $vk_message->setSetting($setting); //Установить параметры
 $vk_message->sendMessage($peer_id,$message);
+
 
 //Сообщение с клавиатурой
 $button1 = ["command","Зеленая кнопка","positive","text"];
@@ -83,3 +86,4 @@ $button3 = ["command","Синяя кнопка","primary","text"];
 $button = [[$button1],[$button2],[$button3]];
 $result = $vk_message->setKeyboard($button,"inline");
 $vk_message->sendMessage($peer_id,$message);
+*/
