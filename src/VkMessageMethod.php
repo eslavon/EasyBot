@@ -44,11 +44,18 @@ class VkMessageMethod extends VkRequest
     private $location = null;
 
    /**
-     * Настройки
+     * Настройки (Создавить ли сниппет для ссылки, Уведомления, Интенты)
      *
      * @var array
      */ 
     private $setting = null;
+
+   /**
+     * Клавиатура для ботов
+     *
+     * @var array
+     */ 
+    private $keyboard = null;
 
    /**
      * Конструктор класса
@@ -63,15 +70,80 @@ class VkMessageMethod extends VkRequest
         $this->version = $version;
     }
 
-    /**
-     * Генерация случайного числа
-     *
-     * @return int
-     */
-    private function random()
+    /** 
+    * Добавить вложение 
+    *
+    * @param string $add_attachment
+    */
+    public function addAttachment($add_attachment)
     {
-        $random = mt_rand(-99999999,99999999);
-        return $random;
+
+        $this->attachment = ($this->attachment !== null) ? $this->attachment.",".$add_attachment : $add_attachment;
+    }
+
+    /**
+    * Получить строку вложений
+    *
+    * @return $string
+    */
+    public function getAttachment()
+    {
+        return $this->attachment;
+    }
+
+    /**
+    * Задать строку вложений
+    *
+    * @param string $value
+    */
+    public function setAttachment($value = null)
+    {
+        $this->attachment = $value;
+    }
+
+    /**
+    * Получить георкодинаты
+    *
+    * @return $array
+    */
+    public function getLocation()
+    {
+        return $this->location;
+    }
+
+    /**
+    * Задать координаты
+    *
+    * @param string $lat - Широта
+    * @param string $long - Долгота
+    */
+    public function setLocation($lat,$long)
+    {
+        $this->location = ["lat"=>$lat,"long" => $long];
+    }
+
+    /**
+    * Задать настройки
+    *
+    * @param array $setting
+    */
+    public function setSetting($setting = null)
+    {
+        if ($setting !== null) {
+            foreach ($setting as $key => $value) {
+                $this->setting[$key] = $value;
+            }
+        }
+    }
+
+    /**
+    * Получить настройки
+    *
+    * @return $array
+    */
+    public function getSetting()
+    {
+        return $this->setting;
     }
 
    /**
@@ -126,6 +198,40 @@ class VkMessageMethod extends VkRequest
     }
 
     /**
+    * Задать клавиатуру
+    *
+    * @param array $array - массив клавиатуры
+    * @param mixed $setting - Скрывать ли клавиатуру после нажатия, включить ли режим inline
+    *
+    * @return string
+    */
+    public function setKeyboard($array,$setting = null)
+    {
+        $this->keyboard = $this->formationKeyboard($array,$setting);
+    }
+
+    /**
+    * Получить клавиатуру
+    *
+    * @return $array
+    */
+    public function getKeyboard()
+    {
+        return $this->keyboard;
+    }
+
+    /**
+     * Генерация случайного числа
+     *
+     * @return int
+     */
+    private function random()
+    {
+        $random = mt_rand(-99999999,99999999);
+        return $random;
+    }
+
+    /**
      * Отправка сообщения (Универсальный метод)
      *
      * @param array $array_params - массив параметров
@@ -162,6 +268,11 @@ class VkMessageMethod extends VkRequest
             $this->setting = null;
         }
 
+        if ($this->keyboard !== null) {
+            $params["keyboard"] = $this->keyboard;
+            $this->keyboard = null;
+        }
+
         $method = "messages.send";
         $result = $this->request($method,$params);
         return $result;
@@ -182,34 +293,6 @@ class VkMessageMethod extends VkRequest
             "peer_id" => $peer_id,
             "message" => $message
         );
-        $result = $this->messagesSend($params);
-        return $result;
-    }
-
-
-    /**
-     * Отправка сообщения с клавиатурой
-     *
-     * @param int $peer_id - ID назначения
-     * @param string $message - Текст сообщения
-     * @param array $button - массив кнопок
-     * @param mixed $one_time - true - скрывать клавиатуру после нажатия, false - нет, inline -режим inline.
-     * @param array $setting - Параметры (Сниппет ссылки,Уведомление,Интент)
-     *
-     * @return array
-     */
-    public function sendMessageButton($peer_id,$message,$button,$one_time = null,$setting = null)
-    {
-        $params = array(
-            "message" => $message,
-            "peer_id" => $peer_id,
-            "keyboard" => $this->formationKeyboard($button,$one_time)
-            );
-        if ($setting !== null) {
-            foreach ($setting as $key => $value) {
-                $params[$key] = $value;
-            }
-        }       
         $result = $this->messagesSend($params);
         return $result;
     }
@@ -237,13 +320,14 @@ class VkMessageMethod extends VkRequest
      * Получить адрес для загрузки документов
      *
      * @param int $peer_id - ID назначения
+     * @param string $type - тип документа. Возможные значения:doc — обычный документ; audio_message — голосовое сообщение.
      *
      * @return string
      */
-    public function docUploadServer($peer_id)
+    public function docUploadServer($peer_id,$type = "doc")
     {
         $params = array(
-            "type" => "doc",
+            "type" => $type,
             "peer_id" => $peer_id,
             "access_token" => $this->token,
             "v" => $this->version             
@@ -286,7 +370,7 @@ class VkMessageMethod extends VkRequest
      *
      * @return string
      */
-    public function saveDocServer($file)
+    public function saveDocServer($file,$type = "doc")
     {
         $params = array(
             "file" => $file,
@@ -295,8 +379,9 @@ class VkMessageMethod extends VkRequest
         );
         $method = "docs.save";
         $result = $this->request($method,$params);
-        $id = $result["response"]["doc"]["id"];
-        $owner_id = $result["response"]["doc"]["owner_id"];
+        $key = ($type == "doc") ? "doc" : "audio_message";
+        $id = $result["response"][$key]["id"];
+        $owner_id = $result["response"][$key]["owner_id"];
         $doc = "doc".$owner_id."_".$id;
         return $doc;         
     }
@@ -327,86 +412,12 @@ class VkMessageMethod extends VkRequest
      *
      * @return string
      */
-    public function uploadDoc($peer_id,$file)
+    public function uploadDoc($peer_id,$file,$type = "doc")
     {
-        $upload_url = $this->docUploadServer($peer_id);
+        $upload_url = $this->docUploadServer($peer_id,$type);
         $doc_array = $this->upload($peer_id,$file,$upload_url);
         $file = $doc_array["file"];
-        return $this->saveDocServer($file);
+        return $this->saveDocServer($file,$type);
     }
-
-    /** 
-    * Добавить вложение 
-    *
-    * @param string $add_attachment
-    */
-    public function addAttachment($add_attachment)
-    {
-
-        $this->attachment = ($this->attachment !== null) ? $this->attachment.",".$add_attachment : $add_attachment;
-    }
-
-    /**
-    * Получить строку вложений
-    *
-    * @return $string
-    */
-    public function getAttachment()
-    {
-        return $this->attachment;
-    }
-
-    /**
-    * Задать строку вложений
-    *
-    * @param string $value
-    */
-    public function setAttachment($value = null)
-    {
-        $this->attachment = $value;
-    }
-
-    /**
-    * Получить георкодинаты
-    *
-    * @return $string
-    */
-    public function getLocation()
-    {
-        return $this->location;
-    }
-
-    /**
-    * Задать строку вложений
-    *
-    * @param string $value
-    */
-    public function setLocation($lat,$long)
-    {
-        $this->location = ["lat"=>$lat,"long" => $long];
-    }
-
-    /**
-    * Задать строку вложений
-    *
-    * @param string $value
-    */
-    public function setSetting($setting = null)
-    {
-        if ($setting !== null) {
-            foreach ($setting as $key => $value) {
-                $this->setting[$key] = $value;
-            }
-        }
-    }
-
-    /**
-    * Получить настройки
-    *
-    * @return $string
-    */
-    public function getSetting()
-    {
-        return $this->setting;
-    }  
 }
+
